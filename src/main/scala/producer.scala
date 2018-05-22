@@ -49,16 +49,18 @@ object producer {
 
   def main(args: Array[String]): Unit = {
 
+    /* Reading a sample XML file  */
     val inputFileName : String = props.getProperty("input.form.path")
     val schema : StructType = StructType(
         StructField("key", StringType, true) ::
         StructField("value", StringType, false) :: Nil)
 
+    /* Creating a DF from XML file  */
     val ADPForm : String = Source.fromFile(inputFileName).mkString
     val ADPFormRow  = List(Row("1", ADPForm)).asJava
     val ADPFormDF = spark.createDataFrame(ADPFormRow, schema)
 
-
+    /* Producing to a Kafka topic  */
     ADPFormDF.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
       .write
       .format("kafka")
